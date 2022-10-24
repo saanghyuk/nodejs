@@ -223,9 +223,9 @@
 
 - **[closure](https://opentutorials.org/course/743/6544) = function + environment**
 
-  - closure는 function이 하나 생길 때마다 하나씩 생깁니다. 
+  - **이것만 기억하자 : closure는 function이 하나 생길 때마다 하나씩 생깁니다. closure는 변수와 scope의 합이다** 
 
-  - environment는 함수 자신을 둘러싼, 접근할 수 있는 모든 scope를 뜻합니다. 
+  - environment는 함수 자신을 둘러싼, 접근할 수 있는 **모든 scope**를 뜻합니다. 
 
   - and는 higher-order function이다. 즉, 다른 함수를 내포하고 있는 함수를 뜻한다. 
 
@@ -251,3 +251,255 @@
     - ![1](./images/21.png)
   - 모든 함수가 선언될 때 마다 closure가 같이 선언되는 것이다. 
     - 
+
+
+
+
+
+- **Prototype**
+
+  - prototype은 유전자. 
+
+  - 자바스크립트에서 상속을 구현하는 개념. 
+
+  - Prototype Chain : object에서 특정 프로퍼티에 접근하려고 하면, 위에서부터 접근하려고 한다. 
+
+    object.toString을 하면, 일단 아래 사진에서 name 있는 레벨에서는 존재하지 않지. 아래로 타고 내려가면서 결국 toString을 찾게 되는 것. 
+
+    ![1](./images/22.png)
+
+  - ```js
+    function Student(name){
+      this.name = name;
+      
+    }
+    
+    Student.prototype.greet = function greet(){
+      return `Hi, ${this.name}`
+    }
+    
+    const me = new Student('Noel')
+    console.log(me.greet())
+    
+    ```
+
+    위처럼 함수도 추가할 수 있다. 
+
+  - prototype은 유전자라서 부모만 가지고 있고, 자식이 직접 가지고 있지는 않다. 
+
+    - [Youtube](https://www.youtube.com/watch?v=wUgmzvExL_E)
+    - 아래 상황에서, nunu는 분명 객체에 안나오는데, 출력은 된다. 
+      - How? `nunu`가 가지고 있지 않으면, nunu부모 유전자를 뒤진다. 부모도 없으면, 부모의 부모의 유전자도 계속 본다. 
+    - ![1](./images/23.png)
+
+  - ```js
+    function Person(name){
+      this.name = name;
+    }
+    Person.prototype.greet = function greet(){
+      return `Hi, ${this.name}`
+    }
+    
+    
+    
+    function Student(name){
+      this.__proto__.constructor(name)
+    }
+    
+    Student.prototype.study = function study(){
+      return `${this.name} is studying!`
+    }
+    
+    Object.setPrototypeOf(Student.prototype, Person.prototype)
+    
+    const me = new Student('Noel')
+    console.log(me.greet())
+    console.log(me.study())
+    console.log(me instanceof Student) //True
+    console.log(me instanceof Person) //True
+    
+    const anotherPerson = new Person('Foo')
+    console.log(anotherPerson instanceof Student) // False
+    console.log(me instanceof Person) // True
+    
+    console.log([] instanceof Array, [] instanceof Object)
+    
+    
+    ```
+
+    ```js
+    // Class
+    
+    class Person2 {
+      constructor(name){
+        this.name = name;
+      }
+      greet(){
+        return `Hi, ${this.name}`
+      }
+    }
+    
+    class Student2 extends Person{
+      constructor(name){
+        super(name)
+      }
+      study(){
+        return `${this.name} is studying`
+      }
+    }
+    
+    const me2 = new Student2('Noel')
+    console.log(me.study())
+    console.log(me.greet())
+    ```
+
+    
+
+- **Moden Javascript**
+
+  - ![1](./images/24.png)
+
+    ![1](./images/25.png)
+
+    ![1](./images/26.png)
+
+​		![1](./images/27.png)
+
+​		![1](./images/28.png)
+
+
+
+let과 const의 예측가능성과 유지보수성이 var보다 훨씬 띄어나다. 가능하다면, const만 쓰고 필요한 경우에 한해 let을 쓰고, var는 절대 쓰지 말자. 
+
+
+
+- **Spread Operator**
+  - ![1](./images/29.png)
+
+![1](./images/30.png)
+
+기존에 있던 값들을 덮어씌우는 것이 가능하다. 아래 예시에서는 host와 password만 덮어씌워지고, 나머지는 그대로 가는 것. 여기서 위치가 중요하다. 아래서, 만약 `...overides` 가 앞에 오면, 그 뒤에 내용이 오히려 override된 것을 덮어씌우게 된다. 
+
+![1](./images/31.png)
+
+Destructuring도 사용할 수 있다. 
+
+![1](./images/32.png)
+
+![1](./images/33.png)
+
+남은 원소들 다 묶어서 받아오기. 맨 앞만 head, 나머지는 rest로 가져오기. 
+
+![1](./images/34.png)
+
+```js
+
+
+const ary = [1, 2, 3, 4, 5]
+const [head, ...rest] = ary
+
+
+console.log(head, rest)
+console.log(head, ...rest)
+
+
+
+const personalData = {
+  email : 'abc@def.com', 
+  password: "****"
+}
+
+const publicData = {
+  nickname : "foo"
+}
+
+const overrides = {
+  email: 'fff@fff.com', 
+}
+
+const user = {
+  ...personalData,
+  ...publicData,
+  ...overrides
+}
+
+console.log(user)
+
+
+
+const shouldOverride = true
+
+const user2 = {
+  ...({
+    email : 'abc@def.com', 
+    password: "****"
+  }),
+  ...({nickname : "foo"}),
+  ...(shouldOverride ? {
+    email: 'fff@fff.com', 
+  } : null)
+}
+
+
+
+
+function foo(head, ...rest){
+  console.log(head)
+  console.log(rest)
+}
+
+foo(1, 2, 3, 4, 5)
+```
+
+
+
+
+
+- **modern javascript**
+
+  - ```js
+    
+    
+    const people = [
+      {
+        age : 20, 
+        city: "Seoul", 
+        pet : ['cat', 'dog']
+      }, 
+      {
+        age: 40, 
+        city: 'Busan'
+      }, 
+      {
+        age:30, 
+        city: 'Daugu', 
+        pet : ['cat', 'dog']
+      }, 
+      {
+        age: 36, 
+        city : "Seoul"
+      }, 
+      {
+        age: 27, 
+        city : "Busan", 
+        pet: "cat"
+      }, 
+      {
+        cat: 24, 
+        city: "Seoul", 
+        pet: "dog"
+      }
+    ]
+    
+    // A. 30대 미만이 한명이라도 사는 도시. 
+    // B. 각 도시별로 개와 고양이를 키우는 사람의 수
+    
+    ```
+
+
+
+
+
+- **Promise**
+  - 비동기 처리
+  - callback 헬. 
