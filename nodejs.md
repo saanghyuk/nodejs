@@ -616,3 +616,5 @@ foo(1, 2, 3, 4, 5)
 - **Transpile**
 
   - 코드를 A언어에서 B언어로 변환하는 작업. 
+  - esbuild : 다른 자바스크립트 버전으로 전환이 필요할 때 사용 가능. 
+  - ![35](/Users/noelson/Documents/nodejs/images/35.png)

@@ -1,5 +1,11 @@
 {
+  "scripts": {
+    "server": "nodemon node/web_server/main.js"
+  },
   "dependencies": {
     "core-js": "^3.26.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 }
