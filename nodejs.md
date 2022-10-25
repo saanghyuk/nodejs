@@ -501,5 +501,118 @@ foo(1, 2, 3, 4, 5)
 
 
 - **Promise**
+
   - 비동기 처리
+
   - callback 헬. 
+
+    - ```js
+      
+      new Promise((resolve, reject) => {
+        console.log("Inside Promise")
+        reject(new Error("First reject"))
+        resolve('First resolve')
+      })
+      .then((value) => {
+        console.log("Inside first then")
+        console.log('value', value)
+      }).catch(error => {
+        console.log(error)
+      })
+      ```
+
+      ```js
+      new Promise((resolve, reject) => {
+        console.log('Before timeout')
+        setTimeout(() => {
+          resolve(Math.random())
+          console.log('After resolve')
+        }, 1000)
+      })
+        .then((value) => {
+          console.log(value)
+      }).then(() => {
+        console.log('then2')
+      }).then(() => {
+        console.log('then3')
+      })
+      
+      ```
+
+    - ```js
+      const fs = require('fs');
+      
+      function readFilePromise(filename){
+        return new Promise ((resolve, reject) => {
+          fs.readFile(filename, 'utf-8', (error, value) => {
+            if (error) {
+              reject(error)
+            }
+            resolve(value)
+          })
+        })
+      }
+      
+      
+      readFilePromise('package.json').then((value) => console.log(value))
+      fs.promises.readFile('package.json').then((value) => console.log(value))
+      ```
+
+- **Polyfill, transpile**
+
+  - `npm install core-js`
+
+  - ```js
+    
+    
+    const { resolveConfig } = require('prettier')
+    
+    require('core-js')
+    
+    const complicatedArray = [1, [2, 3,]]
+    const flattenedArray = complicatedArray.flat()
+    
+    console.log(flattenedArray)
+    
+    
+    const original = 'abcabc123'
+    const changed = original.replaceAll('abc', '123')
+    
+    console.log(changed)
+    
+    ```
+
+    ```js
+    function sleep(duration){
+      return new Promise((resolve) => {
+        console.log('sleep start')
+        setTimeout(() => {
+          resolve()
+          console.log('sleep done', duration)
+        }, duration)
+    })}
+    
+    function alwaysReject(){
+      return new Promise((resolve, reject) => {
+        reject()
+      })
+    }
+    Promise.allSettled(
+      [
+        sleep(2000), 
+        sleep(3500), 
+        sleep(4000), 
+        alwaysRejected()
+      ]
+    ).then(() => {
+      console.log('Promise.all done')
+    })
+    
+    
+    ```
+
+    
+
+- **Transpile**
+
+  - 코드를 A언어에서 B언어로 변환하는 작업. 
