@@ -23,6 +23,8 @@ const server = http.createServer((req, res) => {
       return;
     }
 
+    // regex에 맞는 부분만 빼주는 부분(api.js에 정의되어 있음)
+    console.log(route)
     const regexResult = route.url.exec(req.url);
     if (!regexResult) {
       res.statusCode = 404;
@@ -45,7 +47,7 @@ const server = http.createServer((req, res) => {
           });
         }))) ||
       undefined;
-    console.log(body);
+    // console.log(body);
 
     const result = await route.callback(regexResult, reqBody);
     res.statusCode = result.statusCode;

@@ -1,0 +1,8 @@
+{
+  "posts": [
+    { "id": "my_first_post", "title": "My first Post", "content": "Hello!" },
+    { "id": "my_second_post", "title": "My second Post", "content": "Bye!" },
+    { "id": "my_third_post", "title": "My third Post", "content": "Bye Bye!" },
+    { "id": "hello", "title": "hello", "content": "mycontent" }
+  ]
+}

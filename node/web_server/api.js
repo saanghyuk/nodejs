@@ -39,6 +39,26 @@ const posts = [
  * @property {(matches : string[], body: Object | undefined) => Promise<APIResponse>} callback
  */
 
+const fs = require("fs");
+const DB_JSON_FILENAME = "database.json";
+
+async function getPosts() {
+  const json = await fs.promises.readFile(DB_JSON_FILENAME, "utf-8");
+  return JSON.parse(json).posts;
+}
+
+async function savePosts(posts) {
+  const content = {
+    posts,
+  };
+
+  return fs.promises.writeFile(
+    DB_JSON_FILENAME,
+    JSON.stringify(content),
+    "utf-8"
+  );
+}
+
 // @type {Route []}
 const routes = [
   {
@@ -47,7 +67,7 @@ const routes = [
     callback: async () => ({
       //TODO
       statusCode: 200,
-      body: posts,
+      body: await getPosts(),
     }),
   },
   {
@@ -62,6 +82,8 @@ const routes = [
           body: "Not found",
         };
       }
+
+      const posts = await getPosts();
       const post = posts.find(_post => _post.id === postId);
       if (!post) {
         return {
@@ -91,7 +113,11 @@ const routes = [
         title,
         content: body.content,
       };
+
+      const posts = await getPosts();
       posts.push(newPost);
+
+      savePosts(posts);
       const post = body;
       console.log(body);
       return {
