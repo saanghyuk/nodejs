@@ -1928,3 +1928,1023 @@ app.get('/users/:id', (request, response) => {
 `*` path에 관한 라우팅 코드를 가장 첫 번째로 이동시키면, 이제 / 또는 /users 또는 /users/2 같은 path로 요청을 보내더라도 **항상** Page Not Available만 응답으로 보게 됩니다. 하지만 이건 우리가 원하는 결과가 아니기 때문에 원래 코드로 다시 바꿔야겠죠?
 
 이번 노트에서는  라우팅에서 `*` 의 의미에 대해 알아봤는데요. 라우팅 코드를 쓸 때는 코드 상의 순서도 중요하다는 점. 함께 알아두시면 좋을 거 같습니다.
+
+
+
+
+
+
+
+# NPM
+
+![40](../images/40.png)
+
+모듈은 하나의 자바스크립트 파일이라고 했었는데, 잘 보면 지금 설치한 것들 다 하나의 디렉토리로 설치되어 있음. 왜그럴까?
+
+
+
+## 모듈 검색 순서를 알아야 모듈을 이해할 수 있다. 
+
+모듈의 이름은 어떤 파일의 이름일 수도 있고, 디렉토리 이름일 수도 있다. 
+
+모듈이 검색되는 순서를 알아야 한다. 지금까지 Require라는 함수로 모듈을 로드했는데 require는 다음과 같은 절차에 따라서 로드된다. 
+
+![40](../images/41.png)
+
+![40](../images/42.png)
+
+
+
+
+
+- **주의해야할 점**
+
+**1. 패키지가 로드되는 두 가지 방법**
+
+![img](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3732&directory=Untitled%20(1).png&name=Untitled+%281%29.png)
+
+영상에서 저는 서드파티 패키지를 로드하면 위 이미지의 빨간색 화살표가 표시된 순서대로 과정이 진행된다고 했습니다.
+그런데 가장 아래의 **index.js 파일 로드** 단계에는 왜 빨간색 화살표가 표시되어 있는 걸까요?
+그 이유는 바로
+
+**(1) package.json 파일이 존재하지 않는 경우뿐만 아니라 package.json 파일이 존재하는 경우라도
+(2) 그 내용 중에 main 필드가 없으면, index.js 파일이 로드되기 때문입니다.**
+
+영상에서는 간단한 설명을 위해 이 부분을 언급하지 않았는데요. 사실 이런 경우도 있다는 점을 기억해두면 좋습니다.
+정리하면 다음과 같습니다.
+
+**패키지 안에 package.json 파일이 있을 때, package.json 파일의 내용 중
+(1) main 필드가 존재하면 거기에 적힌 파일을 로드하고
+(2) main 필드가 존재하지 않으면 index.js 파일을 로드합니다.
+
+**(1)의 경우 뿐만 아니라 (2)의 경우에 해당하는 패키지들도 종종 존재하기 때문에 잘 기억해두세요!
+
+**2. 실제 모듈 로드 과정은 좀더 복잡해요.**
+
+실제로 Node.js에서 모듈이 로드되는 과정은 영상에서 설명한 것보다 조금 더 복잡합니다. 그래서 사실 영상에서 '모듈 로드 실패'라고 표시했던 부분이더라도 반드시 모듈 로드가 실패하는 것은 아니고 그 안에는 생략된 과정들이 포함되어 있습니다. 하지만 실무적으로 꼭 알아야하는 내용은 다 정리한 것이기 때문에 이 정도만 알아도 당장 개발하는 데에 큰 문제는 없을 겁니다. 혹시라도 영상 이외의 내용까지도 공부하고 싶은 분들은 [Node.js 공식 문서에 있는 내용](https://nodejs.org/api/modules.html#modules_all_together)을 참고하세요.
+
+
+
+
+
+# node_modules
+
+- node_modules안에 내가 설치한 적 없는 너무 많은 모듈들이 있음. dependency때문. 
+  - 폴더명 모듈 안에 `package.json` 이 있고, 그 안에 main이 있다. 
+
+![43](../images/43.png)
+
+![43](../images/44.png)
+
+
+
+- 써드파티모듈 ==> 패키지
+  - package.json파일이 대체 뭘까?
+  - engine에는 노드 버전이 적혀있음. 
+  - ![43](../images/45.png)
+
+
+
+패키지 안에 있는 **package.json** 파일에는 해당 패키지에 관한 의미있는 정보들이 담겨있습니다. 이번 노트에서는 package.json에 등장할 수 있는 주요 필드들에 대해서 설명해드리겠습니다. 하나하나 꼼꼼하게 읽어보세요.
+
+# 1. name
+
+패키지의 이름입니다. 우리가 특정 패키지를 사용하기 위해 코드에서 require 함수의 인자로 넣는 것이 바로 여기에 적힌 이름입니다.
+
+# 2. version
+
+패키지의 버전입니다. 하나의 패키지는 그 안의 코드 등이 개선될수록 버전이 업데이트되는데요. 바로 위의 name 필드와 이 version 필드를 결합하면 **특정 패키지**의 **특정 버전**을 나타낼 수 있습니다.
+
+# 3. description
+
+패키지에 대한 설명입니다. 패키지를 검색할 때 여기 있는 내용도 검색 기준으로 활용되기 때문에 자신의 패키지가 잘 검색되도록 하려면 여기에 알맞은 설명을 써두는 게 좋습니다.
+
+# 4. keywords
+
+패키지에 대한 키워드들입니다. 우리가 SNS에서 이미지를 올릴 때 함께 적는 해시태그 같은 거라고 생각하시면 됩니다. keywords도 description처럼 검색 기준으로 활용되기 때문에 적절한 키워드들을 써주면 좋습니다.
+
+# 5. homepage
+
+패키지 관련 사이트의 URL입니다. 패키지 관련 커뮤니티의 홈페이지 주소가 있는 경우가 많습니다.
+
+# 6. bugs
+
+패키지를 사용하다가 발생하는 버그들을 신고할 수 있는 URL이나 이메일 주소가 적혀있습니다. 여러분도 패키지를 사용하다가 이상한 점이 있다면 이 필드를 보고 신고하면 좋겠죠?
+
+# 7. license
+
+패키지의 라이센스 정보가 담겨있습니다. 패키지가 가질 수 있는 라이센스의 종류에 대해 알고 싶다면 [이 링크](https://spdx.org/licenses/)를 참조하세요.
+
+# 8. author, contributors
+
+author는 패키지를 만든 사람, contributors는 패키지를 만드는데 기여하는 사람들입니다. 이 모두가 모여 패키지를 점점 더 개선해나가는 것입니다.
+
+# 9. main
+
+이 패키지를
+
+```sh
+require('패키지 이름')
+```
+
+로 로드했을 때 실제로 로드되는 파일의 이름이 적혀있는 필드입니다. [이전 영상](https://www.codeit.kr/learn/3732)에서 require 함수가 모듈을 로드하는 절차를 설명할 때 이야기했던 필드인데요.
+
+예를 들어, A라는 패키지가 있고, A 패키지의 package.json 파일의 내용 중, main 필드에 start.js라는 값이 적혀있다고 합시다.
+
+> 그럼 해당 프로젝트에 있는 다른 어떤 자바스크립트 파일 안에서 **require('A') 코드**는 결국 start.js 파일을 로드한다는 뜻이고, 이 start.js 파일 내의 코드에서 **exports, module.exports** 등으로 외부에 공개한 객체를 가져오게 되는 겁니다. 대부분의 패키지가 이런 방식으로 사용되기 때문에 보통 package.json 파일에는 main 필드가 존재합니다. 만약 main 필드가 없다면, [이전 영상](https://www.codeit.kr/learn/3732)에서 배운 것처럼 작업 디렉토리 안에서 index.js라는 파일을 찾아서 로드합니다.
+
+main 필드는 꼭 정확하게 기억해두세요!
+
+# 10. man
+
+이 패키지의 사용 설명서가 담긴 파일들의 경로가 적혀있습니다.
+
+# 11. repository
+
+이 패키지의 코드가 관리되고 있는 레포지토리(repository)의 주소를 나타냅니다. 보통 버전 관리 시스템의 저장소 URL(GitHub URL 등)이 여기 적혀있습니다. 레포지토리가 정확히 무엇인지 알고 싶은 분들은 [코드잇의 'Git' 토픽에서 이 영상](https://www.codeit.kr/learn/courses/version-control-with-git/2885)을 참고하세요.
+
+# 12. scripts
+
+여기에는 npm으로 간편하게 실행할 수 있는 스크립트 파일들의 정보가 담겨있습니다. 만약 이 필드에
+
+```jsx
+"scripts" : { 
+  "test" : "실행할 커맨드 A"
+}
+```
+
+이런 식으로 적혀있으면 터미널에서
+
+```sh
+npm run test
+```
+
+라고 쓰고 실행했을 때 '실행할 커맨드 A'가 실행됩니다.
+
+예를 들어, sample.js라는 파일에
+
+```jsx
+console.log('Test Completed!');
+```
+
+라고 쓰고 저장한 다음, scripts 필드에는
+
+```jsx
+"scripts" : { 
+  "test" : "node sample.js"
+}
+```
+
+라고 쓰고 저장하면
+
+터미널에서 **npm run test**라고 쓰고 실행했을 때,
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3735&directory=Untitled.png&name=Untitled.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3735&directory=Untitled.png&name=Untitled.png)
+
+'node sample.js'가 실행되고 그 결과가 잘 출력됩니다.
+
+잠깐 express 패키지의 package.json 파일의 scripts 필드를 예시로 보면
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3735&directory=Untitled%201.png&name=Untitled+1.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3735&directory=Untitled%201.png&name=Untitled+1.png)
+
+이렇게 다양한 단어들이 보이는데요. 대부분 코드 테스트에 관한 커맨드인 것 같죠? 이렇게 scripts 필드는 특히 길이가 긴 명령어를 즐겨찾기해두고 좀 더 편하게 호출하기 위해 사용하는 필드입니다. 나중에 npm을 능숙하게 다루게 됐을 때 자주 찾아보게 될 필드니까 잘 기억해두세요.
+
+scripts 필드에 대해 더 자세히 알고 싶은 분은 [이 링크](https://docs.npmjs.com/misc/scripts)를 참조하세요.
+
+# 13. dependencies
+
+현재 패키지가 의존하고 있는 다른 패키지들이 나열되어 있는 필드입니다. 이전 영상에서 제가 강조했던 필드죠? 이 필드는 **Node.js 패키지 생태계의 핵심이 되는 필드**라고 했습니다. 왜냐하면 어떤 패키지를 설치할 때 결국, 이 필드가 있어야, 필요한 하위 패키지들을 설치할 수 있기 때문입니다. 잠깐 express 패키지의 dependencies를 볼까요?
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3735&directory=Untitled%202.png&name=Untitled+2.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3735&directory=Untitled%202.png&name=Untitled+2.png)
+
+express 모듈 하나도 정말 많은 모듈에 의존하고 있네요. 그리고 자세히보면, 각 dependency의 정보로는,
+
+- 왼쪽에 모듈의 이름, 오른쪽에 모듈의 버전 정보
+
+가 적혀있습니다.  버전 정보의 경우 빨간 박스 안을 보면
+
+> 총 세 개의 숫자로 이루어져 있고  맨 앞에 물결 모양 표기가 있는 것도 있는데요.
+
+버전 정보에 대한 이야기는 다음 노트에서 하겠습니다. 
+ 자, 이때까지 package.json 파일의 각 필드에 대해서 살펴봤습니다. package.json 파일은 꽤 중요한 파일이기 때문에 각 필드의 기본적인 의미를 기억해둬야 합니다. package.json 파일에 등장하는 모든 필드에 대해서 알고 싶다면 [공식 문서의 내용](https://docs.npmjs.com/files/package.json)을 참고하세요.
+
+
+
+
+
+
+
+# 1. Semantic Version이란?
+
+이전 노트에서 본 express 패키지의 package.json 파일의 dependencies 필드를 살펴봅시다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3736&directory=Untitled.png&name=Untitled.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3736&directory=Untitled.png&name=Untitled.png)
+
+여기서 각 패키지의 이름 옆에 적힌 버전에 대한 이야기를 해보겠습니다.  dependencies 필드에 있는 각 패키지 이름 옆의 버전은 **Semantic Version**이라고 하는데요. Semantic Version을 우리말로 해석하면 '의미론적 버전' 정도로 해석할 수 있습니다.
+
+Semantic Version은 위 그림에서 보이는 것처럼 1.3.7, 6.7.0 등과 같이 총 세 개의 숫자로 이루어진 버전인데요. 이때 이것을
+
+
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3736&directory=Untitled%201.png&name=Untitled+1.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3736&directory=Untitled%201.png&name=Untitled+1.png)
+
+
+
+이 이미지처럼 쪼개봤을 때,
+
+**X를 메이저 버전(major version)** **Y를 마이너 버전(minor version)** **Z를 패치 버전(patch version)**
+
+이라고 합니다. Semantic Version에서 중요한 것은 패키지의 버전을 업데이트할 때 일정한 규칙이 있다는 점인데요.
+
+이 규칙을 배우기 전에 먼저 API라는 것이 뭔지 간단히 알아야합니다. API란 Application Programming Interface의 약자로 '외부에서 사용할 수 있도록 공개된 함수'를 의미합니다. 우리가 코드 내에서 require 함수를 써서 어떤 패키지를 로드하는 이유는 뭔가요? 그 패키지가 공개하는 함수 등을 사용하기 위해서잖아요? 이렇게 외부에서 사용할 수 있도록 공개된 함수 등을 모두 API라고 하는 겁니다. Semantic Version에서는 이 API의 변화를 기준으로 버전을 업데이트해야 합니다. 하나씩 설명해볼게요.
+
+**첫 번째로 가장 오른쪽의 패치 버전은, API에 변화를 주지 않는 범위 내에서의 변화가 이루어진 경우에 업데이트합니다.** 이런 경우는 어떤 것들이 있을까요? 겉으로 공개된 API는 바뀌지 않았지만, 코드에 존재하던 버그를 해결하거나, 알고리즘을 바꿔서 그 효율성을 향상시킨 경우 등이 해당하겠죠? 이럴 때는 예를 들어, 버전을 2.3.1에서 2.3.2로 올릴 수 있는 겁니다. 2.3.1에서 바로 2.4.0이나 3.0.0으로 업데이트하면 안 되는 것이고요.
+
+**두 번째로 가운데에 있는 마이너 버전은, 이전 버전의 API와 호환되는(backward-compatible) API 상의 변화가 발생했을 때 업데이트합니다.** 예를 들어, 새로운 API를 추가한 경우를 생각해봅시다. 그러니까 2.3.1 버전에서 새로운 API를 추가하면 2.4.0으로 버전을 올리면 됩니다. 그럼 기존의 2.3.1 버전의 패키지를 믿고 사용했던 다른 곳에서 이 패키지의 2.4.0 버전을 사용해도 괜찮은 걸까요? 네, 괜찮습니다. 왜냐하면 API 상의 변화가 생기긴 했지만 이미 존재했던 API들은 건드리지 않는 범위의 변화(단순 API 추가)가 발생한 것이기 때문입니다.
+
+**마지막으로 가장 왼쪽의 메이저 버전은, 이전 버전의 API와 호환되지 않는(not backward-compatible) API 상의 변화가 발생했을 때 업데이트합니다.** 기존의 API를 아예 삭제했거나 그 이름을 바꾸는 등의 변화가 이것에 해당하는데요. 이럴 때는 원래 2.3.1 버전이었다면 3.0.0으로 버전을 올려줘야 합니다. 만약 자신이 사용하던 패키지의 메이저 버전이 업데이트되었다면 그리 좋은 소식은 아닐 수도 있습니다. 왜냐하면 그 패키지의 최신 버전을 사용하고 싶다면, 원래 사용하던 이전 버전 패키지의 API에서 어떤 부분들이 바뀐 건지를 체크하고, 코드를 재수정해야 할 가능성이 높기 때문입니다.
+
+그리고 메이저 버전 업데이트는 패키지를 만드는 사람 입장에서도 너무 자주 해서는 안 되는 작업이기도 합니다. 특히, 인기가 많은 패키지일수록 해당 패키지에 의존해서 만들어진 것들이 많을 텐데 만약 메이저 버전 업데이트가 자주 발생하면 이것에 대해 많은 사람의 수고가 필요하기 때문이죠. 하지만 그렇다고 메이저 버전 업데이트를 안 할 수는 없는 일이겠죠? 만약 메이저 버전 업데이트가 발생했다면 해당 업데이트를 한 사람은 그 패키지를 가져다 쓴 사람들이 잘 알 수 있도록 홈페이지에 잘 공지해두고, 어떤 점이 크게 바뀐 건지를 잘 정리해두는 게 좋습니다.
+
+Semantic Version이 뭔지 이해가 되시나요? 생각보다 엄격한 규칙이 포함된 버전 표기법이죠? 이런 체계적인 버전 관리 규칙이 있기 때문에 Node.js의 패키지 생태계가 잘 유지될 수 있는 겁니다.
+
+# 2. Version Range Syntax 배우기
+
+이번에는 방금 배운 Semantic Version을 기반으로 패키지가 다른 패키지의 어느 버전들을 요구하는지를 나타낼 때 사용되는 **Version Range Syntax(버전 범위에 관한 표기법)**에 대해 배워보겠습니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3736&directory=Untitled.png&name=Untitled.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3736&directory=Untitled.png&name=Untitled.png)
+
+지금 이 이미지를 다시 보면 Semantic Version만 쓰여 있는 경우도 있지만 Semantic Version 왼쪽에 물결 모양 기호가 붙어있는 것도 보입니다. 물결 모양 기호의 정식 명칭은 틸드(Tilde)인데요. 이것도 Version Range Syntax 중의 하나입니다.
+
+자, 이제
+
+- codeit이라는 패키지가 존재하고,
+- express 패키지가 codeit 패키지를 필요로 한다고 가정한 후,
+
+Version Range Syntax를 본격적으로 배워봅시다.
+
+## (1) Basic Syntax
+
+- "codeit" : "2.3.1"
+
+이렇게 쓰여 있으면 정확히 2.3.1 버전의 codeit 패키지가 필요하다는 뜻입니다.
+
+- "codeit" : ">2.3.1"
+
+2.3.1보다 높은 버전의 codeit 패키지가 필요하다는 뜻입니다.
+
+- "codeit" : "2.3.1 || ≥2.5.0 <3.1.2"
+
+2.3.1 버전의 codeit 패키지 또는 2.5.0 버전 이상이면서 3.1.2 버전 미만의 codeit 패키지가 필요하다는 뜻입니다. **||(or)**는 왼쪽 조건과 오른쪽 조건 중 하나를 만족해야 한다는 뜻이고, ≥2.5.0 <3.1.2 사이의 **공백** 하나는 왼쪽과 오른쪽 조건 **둘 다(&, and)**를 만족해야 한다는 뜻입니다.
+
+여기까지는 별로 어렵지 않죠? 이제 좀더 응용된 형태의 Syntax들도 보겠습니다.
+
+## (2) Advanced Syntax
+
+### 1) Hyphen Range
+
+- "codeit" : "2.3.1 - 3.1.2"
+
+2.3.1 버전 이상 3.1.2 버전 이하의 codeit 패키지가 필요하다는 뜻입니다. 이것은 ≥2.3.1 ≤3.1.2 을 줄여서 표시한 것이라고 생각하면 됩니다. 이때 패치 버전이나 마이너 버전을 표시하지 않는 경우도 있을 수 있는데요.
+
+예를 들어, 2.3 - 3.1.2이면 자동으로 ≥2.3.0 ≤3.1.2 으로 빈자리에 0이 붙어서 해석됩니다.  하지만 만약 그런 버전이 오른쪽에 있다면,
+
+그러니까 예를 들어 2.3.1 - 3.1 이면 ≥2.3.1 <3.2.0 이렇게 다르게 해석됩니다.   같은 원리로 2.3.1 - 3 이면 ≥2.3.1 <4.0.0 이렇게 해석됩니다.
+
+### 2) X-range
+
+- "codeit" : "*"
+
+어느 버전의 codeit 패키지도 상관없다는 뜻입니다.
+
+- "codeit" : "3.x"
+
+x에는 어떤 버전이 들어가도 상관없다는 뜻입니다. 즉, ≥3.0.0 <4.0.0 과 같은 뜻입니다.  참고로 그냥 3이라고만 써있어도 3.x로 해석이 되어서 ≥3.0.0 <4.0.0 라는 뜻입니다.
+
+- "codeit" : "3.1.x"
+
+같은 원리로 ≥3.1.0 <3.2.0 라는 뜻입니다.  참고로 그냥 3.1이라고만 써있어도 3.1.x로 해석이 되어서 ≥3.1.0 <3.2.0 라는 뜻입니다.
+
+### 3) Tilde Range
+
+위에서 봤던 물결 모양 기호(~, Tilde, 틸드)를 사용한 표기법인데요. 이 경우에는 마이너 버전이 표시된 경우는 패치 버전 업데이트까지만 허용하고, 마이너 버전이 없으면 마이너 버전의 업데이트까지 허락하는 겁니다.
+
+- "codeit" : "~3.1.2"
+
+이런 경우는 ≥3.1.2 <3.2.0 이렇게 해석이 됩니다. 지금 3.1.2에 마이너 버전이 존재하므로 패치 버전이 업데이트된 것들만 허용합니다.
+
+- "codeit" : "~3.1"
+
+만약 이렇게 패치 버전이 적혀있지 않다면 ≥3.1.0 <3.2.0 이렇게 해석됩니다. 지금 3.1에 마이너 버전이 존재하므로 패치 버전이 업데이트된 것들만 허용되는 겁니다. 생략된 패치 버전은 0부터 시작합니다.
+
+- "codeit" : "~3"
+
+만약 마이너 버전도 적혀있지 않다면 ≥3.0.0 <4.0.0 이렇게 해석됩니다. 즉, 마이너 버전이나 패치 버전이 업데이트된 버전들만 허용합니다.
+
+### 4) Caret Range
+
+메이저 버전, 마이너 버전, 패치 버전 중에서 현재 보이는 가장 왼쪽의 0이 아닌 버전이 바뀌지 않는 선에서의 버전 업데이트만을 허용합니다.
+
+- "codeit" : "^1.2.3"
+
+가장 왼쪽의 0이 아닌 버전, 즉, 1이 바뀌지 않는 선에서의 버전 업데이트만 허용됩니다. 여기서는 ≥1.2.3 <2.0.0 이라는 뜻입니다.
+
+- "codeit" : "^0.2.3"
+
+가장 왼쪽의 0이 아닌 버전, 2가 바뀌지 않는 선에서의 버전 업데이트만 허용됩니다. ≥0.2.3 <0.3.0 이라는 뜻입니다.
+
+- "codeit" : "^0.0.3"
+
+가장 왼쪽의 0이 아닌 버전, 3이 바뀌지 않는 선에서의 버전 업데이트만 허용됩니다. ≥0.0.3 <0.0.4 이라는 뜻입니다.
+
+Version Range Syntax에 대해 배워봤는데요. 별로 어렵지는 않죠? 마지막의 Tilde Range와 Caret Range만 잘 구별할 수 있다면 큰 어려움은 없을 겁니다.  
+ 자, 이때까지
+
+> 한 패키지의 package.json 파일에 있는  dependencies 필드에 적힌  각각의 패키지 이름 옆에 붙은 **Semantic Version**과 **Version Range Syntax**에 대해 배웠습니다.
+
+이 두 가지를 잘 이해하면 앞으로 패키지 간의 의존 관계를 쉽게 해석할 수 있게 될 겁니다.
+
+
+
+
+
+
+
+# 패키지 만들어 보기
+
+- `npm init`: 현재 디렉토리를 패키지로 만드는 명령어
+
+이번 노트에서는 이전 영상에서 제가 직접 만든 패키지를 **npm 공개 저장소에 업로드**해보겠습니다. 혹시 자신이 만든 패키지를 업로드하고 싶은 분은 아래 절차를 따라 해보세요.
+
+# 1. npm 회원가입
+
+1> 먼저 [npm 공식 홈페이지](https://www.npmjs.com/)에서 화면 우측 상단의 Sign up 버튼을 누르세요.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled.png&name=Untitled.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled.png&name=Untitled.png)
+
+2> 그다음 사용할 사용자 이름(Username)과 이메일 주소, 비밀번호를 입력한 후, '약관 동의' 버튼에 체크하고, Create an Account 버튼을 클릭하세요.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%201.png&name=Untitled+1.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%201.png&name=Untitled+1.png)
+
+3> 회원 가입을 마쳤으면, Sign in 버튼을 클릭해서 로그인하세요.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%202.png&name=Untitled+2.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%202.png&name=Untitled+2.png)
+
+4> 사용자 이름과 비밀번호를 입력하고 Sign In 버튼을 클릭하세요.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%203.png&name=Untitled+3.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%203.png&name=Untitled+3.png)
+
+5> 그럼 이렇게 화려한 메인 화면이 보이는데요. 관심이 있는 분들은 화면의 여러 기능을 직접 사용해보세요.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%204.png&name=Untitled+4.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%204.png&name=Untitled+4.png)
+
+화면 상단을 보면 아직 제가 이메일 인증을 하지 않았다는 경고 문구가 보입니다. 이메일 인증까지 마쳐야 나중에 패키지를 업로드할 수 있습니다. 화면 상단의 'Do you need us to send it again?' 부분을 클릭하고, 회원가입할 때 입력했던 이메일로 가세요.
+
+6> 그럼 이렇게 인증 링크가 담긴 이메일이 와있을 겁니다. 인증 링크를 클릭하세요.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%205.png&name=Untitled+5.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%205.png&name=Untitled+5.png)
+
+7> 이제 이메일 인증이 완료되었습니다. Continue 버튼을 누르세요.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%206.png&name=Untitled+6.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%206.png&name=Untitled+6.png)
+
+8> 그럼 다시 메인 화면으로 돌아갑니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%207.png&name=Untitled+7.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%207.png&name=Untitled+7.png)
+
+자, 이제 제 패키지를 업로드해봅시다.
+
+# 2. 패키지 업로드(publish)
+
+## (1) 패키지 업로드
+
+1> 먼저 터미널을 실행합시다.(VScode의 내장 터미널을 사용하셔도 됩니다) 그리고
+
+```sh
+npm login
+```
+
+이라고 쓰고 엔터를 쳐보세요.  그럼 사용자 이름과 비밀번호를 입력할 수 있는데요. 방금 가입할 때 썼던 아이디와 비밀번호를 입력하고 엔터를 치세요. 비밀번호는 입력해도 입력된 것처럼 보이지 않으니까 그냥 입력하고 엔터를 치면 됩니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%208.png&name=Untitled+8.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%208.png&name=Untitled+8.png)
+
+2> 그럼 로그인이 완료됩니다. 그다음
+
+```sh
+npm whoami
+```
+
+라고 쓰고 실행해보면 지금 인증된 사용자가 누구인지 확인할 수 있습니다. codeit-teacher라고 잘 뜨죠? 여러분은 여러분의 사용자 이름이 뜰 겁니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%209.png&name=Untitled+9.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%209.png&name=Untitled+9.png)
+
+3> 자, 이제 바로 패키지를 npm 저장소에 공개할 수 있습니다.
+
+```sh
+npm publish
+```
+
+라는 명령어를 쓰고 엔터를 쳐보세요.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2010.png&name=Untitled+10.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2010.png&name=Untitled+10.png)
+
+자, 이렇게 codeit_node_study@1.0.0이라는 패키지가 npm 저장소에 업로드되었습니다.  **이미 첫 번째로 codeit_node_study라는 패키지를 올린 수강생 분이 있다면 더 이상 같은 이름의 패키지는 업로드할 수 없습니다.** 따라서 package.json 파일에서 패키지 이름 부분을 여러분이 원하는 대로 다른 이름으로 수정하고 업로드해주세요! 참고로 이렇게 **[패키지 이름]@[버전]** 형식의 명칭으로 하나의 고유한 패키지를 식별할 수 있다는 점을 기억하세요.
+
+4> 정말로 공개가 잘 되었는지 홈페이지에서 직접 확인해보겠습니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2011.png&name=Untitled+11.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2011.png&name=Untitled+11.png)
+
+**codeit-node-study**라고 검색했더니 정말로 패키지가 잘 보이네요.
+
+자, 이렇게 간단하게 자신의 패키지를 업로드할 수 있다는 게 정말 신기하죠? 앞으로 자바스크립트와 Node.js 공부를 열심히 하고 여러분 나름의 멋진 패키지를 만들어서 이렇게 npm 공개 저장소에 올리는 걸 목표로 해보는 건 어떨까요?
+
+## (2) 패키지 버전 업데이트
+
+하나의 패키지는 시간이 지날수록 발전합니다. 패키지에 새로운 코드와 파일들이 추가되거나 기존의 코드가 수정되는 작업이 반복되면서 말이죠. 이때 이전 노트에서 설명했던 것처럼 그 내용에 맞게 **Semantic Version**을 업데이트해줘야 하는데요. 이렇게 버전을 업데이트한 후에는 npm 저장소에도 새 버전의 패키지를 올려주면 좋겠죠? 그 방법을 한번 알아보겠습니다.
+
+1> 일단 현재 패키지가 업그레이드되었다고 가정하고 패키지 버전을 업데이트해보겠습니다. 패키지의 버전을 업데이트 하려면
+
+```sh
+npm version
+```
+
+이라고 쓰고 그 뒤에 새로운 버전을 써주면 됩니다. 저는 원래 1.0.0 버전이었으니까 패치 버전만 업데이트해서 1.0.1이라고 한번 써볼게요.
+
+그리고 나서는 쉽습니다. 그냥 또
+
+```sh
+npm publish
+```
+
+를 해주면 됩니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2012.png&name=Untitled+12.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2012.png&name=Untitled+12.png)
+
+그럼 마찬가지로 새로운 버전의 패키지도 npm 공개 저장소에 잘 업로드됩니다.
+
+2> 원래의 패키지 화면을 새로고침하고 **Versions** 라는 탭을 클릭해보면, 이때까지의 패키지 히스토리를 볼 수 있습니다. 이전에 올린 **1.0.0 버전**과 방금 올린 **1.0.1 버전**이 잘 보이죠?
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2013.png&name=Untitled+13.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2013.png&name=Untitled+13.png)
+
+3> 그다음 저는 버전을 **1.0.0 → 1.0.1 → 1.1.0 → 2.0.1** 로 계속 올리고 매번 publish를 해봤는데요. 그리고 나서 다시 확인해보면 아래 이미지처럼 각 버전이 모두 잘 보입니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2014.png&name=Untitled+14.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2014.png&name=Untitled+14.png)
+
+## (3) 공개된 패키지 다시 내리기
+
+1> 만약 공개된 패키지를 다시 npm 저장소에서 없애고 싶다면 어떻게 해야 할까요? 만약 특정 버전의 패키지만 없애고 싶다면
+
+```sh
+npm unpublish [패키지 이름]@[버전]
+```
+
+형식의 명령어를 입력해주면 됩니다. codeit_node_study 패키지 1.0.1 버전을 npm 저장소에서 없애볼게요.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2015.png&name=Untitled+15.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2015.png&name=Untitled+15.png)
+
+그다음 확인해보면(반영되는데 시간이 좀 걸릴 수도 있습니다)
+
+2> 1.0.1 버전만 깔끔하게 사라진 것을 확인할 수 있습니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2016.png&name=Untitled+16.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2016.png&name=Untitled+16.png)
+
+3> 그렇다면 만약 모든 버전의 패키지를, 없애고 싶다면 어떻게 해야 할까요? 그럴 때는
+
+```sh
+npm unpublish [패키지 이름] --force
+```
+
+라고 쓰면 됩니다. 패키지의 모든 버전을 npm 저장소에서 삭제하는 건 위험한 작업이기 때문에 **--force**(강제로 실행하다) 옵션을 줘야 실행할 수 있는데요. 실행해보면,
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2017.png&name=Untitled+17.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2017.png&name=Untitled+17.png)
+
+"I sure hope you know what you are doing(당신이 지금 무슨 작업을 하는지를 알고 있기를 바랍니다)"이라는 경고 문구가 뜨네요.
+
+다시 웹 페이지에서 확인해보면
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2018.png&name=Untitled+18.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3739&directory=Untitled%2018.png&name=Untitled+18.png)
+
+같은 URL을 새로고침했는데 이제는 **codeit_node_study 패키지가 존재하지 않는다고 뜨네요.** 공개한 패키지를 삭제하는 것도 어렵지 않죠? 
+ 자, 이때까지
+
+- 나의 패키지를 npm 저장소에 업로드하는 법
+- 업데이트된 패키지들도 추가로 업로드하는 법
+- 업로드한 패키지를 삭제하는 방법을 배웠는데요.
+
+만약 나중에 여러분이 꽤 괜찮은 패키지를 만들게 된다면, npm 저장소에 올리고 주변 사람들, 그리고 코드잇에도 꼭 알려주세요~!
+
+
+
+
+
+
+
+
+
+이번 노트에서는 패키지 안에 있는 **package.json 파일**과 **package-lock.json 파일**이 무엇인지, 둘 간의 차이점은 무엇인지 알아보겠습니다. 그 전에 개발 실무적인 관점에서 패키지가 어떻게 다루어지는지에 대해 이야기해볼게요.
+
+# 1. 패키지를 공유할 때, 그 안의 node_modules 디렉토리는 공유하지 않아요.
+
+하나의 패키지는 여러 명의 개발자가 협력해서 만드는 게 일반적입니다. 그럼 이때 협력하는 개발자들끼리는 패키지를 어떻게 공유할까요?
+
+패키지는 package.json 파일이 있는 디렉토리니까 이 디렉토리를 서로 주고받으면 되는데요. 이때 중요한 점이 하나 있습니다.  **패키지를 공유할 때, 패키지 안에 있는 node_modules 디렉토리는 보통 공유하지 않는다는 점입니다.**
+
+node_modules 디렉토리가 뭐였죠? 현재 작업 중인 패키지에서 이런저런 패키지들을 설치하면 그것들이 설치되는 곳이었습니다.  그런데 이렇게 중요한 node_modules 디렉토리를 왜 공유하지 않는 걸까요? 왜냐하면 보통 패키지를 몇 개 정도만 설치해도 node_modules 디렉토리 내부의 용량은 매우 커지게 되고, 이것들을 매번 공유하는 것은 비효율적(**용량 문제**)이기 때문입니다. 하지만 그렇다고 해서 현재 패키지가 의존하는 다른 패키지들이 없으면, 현재 패키지가 정상적으로 실행될 수 없을텐데 대책이 있는 걸까요?
+
+바로 이때 package.json 파일이 필요합니다.
+
+**패키지를 공유할 때는 그 안의 package.json 파일만 제대로 공유하면 됩니다.** 그리고 공유받은 측은, 해당 패키지 안에서
+
+```sh
+npm install
+```
+
+이라고 쓰고 실행하면, npm이 **package.json 파일의 dependencies 필드**에 적힌
+
+- 의존 패키지들의 이름과
+- Semantic Version / Version Range Syntax를 보고
+
+**알맞은 패키지들을 자동으로 설치**해줍니다.
+
+이전에 우리가 배운 것처럼 package.json 파일에는
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3740&directory=Untitled.png&name=Untitled.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3740&directory=Untitled.png&name=Untitled.png)
+
+현재 패키지가 의존하는 패키지들(dependencies)들의 정보가 이렇게 잘 나와있기 때문에 npm이 이 정보를 기반으로 필요한 패키지들을 설치할 수 있는 겁니다. 한마디로 정리하면, 패키지를 공유할 때 무거운 용량의 node_modules 디렉토리는 굳이 직접 공유하지 않고, 패키지를 **공유받는 사람이 npm install 명령어를 실행해서 공유받은 package.json 파일을 기반으로 직접 생성**하는 것입니다.
+
+# 2. package.json 파일과 package-lock.json 파일
+
+방금 package.json 파일을 기반으로 한 패키지 공유 방식에 대해 설명했습니다. 그런데 가끔 이 방식이 문제가 될 때가 있습니다. 그건 바로 개발자 A가 갖고 있던 패키지를 받아서 개발자 B가 npm install 명령어로 그 안의 node_modules 디렉토리를 **재현**해도, **그 내부의 패키지들이 동일하지 않을 때가 있기 때문입니다.** 이런 일이 발생하는 가장 주된 원인은 우리가 배운 **Version Range Syntax 때문**입니다. package.json 파일의 dependencies 필드를 보면 버전 부분에 3.5.2 이런 식으로 딱 Semantic Version만 적혀있는 부분도 있지만 우리가 배운 **Tilde Range(~3.5.2), Caret Range(^3.5.2) 같은 Version Range Syntax가 적혀있는 경우도 많습니다.** 그리고 이런 경우에는 해당 패키지의 특정 버전 뿐만 아니라 일정한 버전 범위 내에 있는 패키지면 설치가 가능하기 때문에 문제가 되는 겁니다.
+
+예를 들어,
+
+- 개발자 A가 sample이라는 패키지에 관한 작업을 할 때,
+- 그것이 의존하는 helper라는 패키지의 Version Range가 **^3.5.2**였다고 생각해봅시다.
+
+그럼 3.5.2≥ <4.0.0 버전 안의 패키지들은 모두 설치가 가능하겠죠?
+
+A가 sample 패키지를 만들 때는 helper 패키지의 최신 버전이 3.5.4였다고 해봅시다. 그리고 시간이 지나 helper 패키지의 3.6.0 버전이 나왔다고 생각해보세요. 이 시점에 만약 개발자 B가 이 패키지를 공유받는다면 어떻게 될까요?  위에서 말한 대로 node_modules 디렉토리는 공유하지 않고 package.json 파일만 공유하기 때문에, 이제 개발자 B의 경우에는 npm install을 실행했을 때 3.6.0 버전의 helper 패키지가 설치될 겁니다. 분명, 둘 다 sample 패키지를 갖고 작업을 하고 있는데
+
+- 개발자 A는 3.5.4 버전의 helper 패키지,
+- 개발자 B는 3.6.0 버전의 helper 패키지
+
+를 갖고 작업하게 되는 겁니다.
+
+일반적인 경우에는 이러한 것들이 별 문제가 없을 수도 있습니다. 하지만
+
+- sample 패키지를 공동 개발하는 중이라 모든 개발자가 똑같은 환경을 보장받아야하는 경우
+- helper 패키지의 새 버전에 버그 등은 없는지 점검한 후에 써야하는 경우
+
+등에는 공유하는 측과 공유받는 측에서 이렇게 dependency의 차이가 발생해서는 안 됩니다.
+
+그럼 이 문제를 어떻게 해결할 수 있을까요? 그렇다고 node_modules 디렉토리를 통째로 공유하는 건 용량 때문에 너무 비효율적인데 말이죠.
+
+정답은 바로 **package-lock.json** 파일에 있습니다. package-lock.json 파일에 대해서는 배운 적이 있는데요.
+
+잠깐 저의 nodeStudy 패키지 내부를 보겠습니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3740&directory=Untitled%201.png&name=Untitled+1.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3740&directory=Untitled%201.png&name=Untitled+1.png)
+
+지금 보면 **package-lock.json** 파일과 **pakcage.json** 파일이 보이는데요. 각각 어느 시점에 생긴 파일들인지 기억나시나요?
+
+- package-lock.json 파일은 맨 처음 패키지를 설치했을 때(당시에는 패키지를 배우기 전이라 '서드파티 모듈'이라고 불렀었죠?) 생겼던 파일이고([참조](https://www.codeit.kr/learn/3712))
+- package.json 파일은 제가 **npm init** 명령어를 사용해서 nodeStudy 디렉토리를 하나의 패키지로 만들었을 때 생긴 파일인데요.([참조](https://www.codeit.kr/learn/3738))
+
+> package-lock.json 파일에는 dependencies 필드에, 현재 패키지 안에 어떤 패키지들이 설치되어 있는지 그 정보가 담겨있다고 배웠습니다.  package.json 파일도 마찬가지로 dependencies 필드가 있고, 여기에는 어떤 패키지들이 설치되어야 하는지에 대한 정보가 있다고 했습니다.
+
+혹시 방금 위의 설명에서 둘 간의 미묘한 차이를 눈치채셨나요?
+
+package-lock.json에는 현재 패키지 안에 **'실제로 설치된'** 패키지들의 정확한 버전들이 기록되어 있습니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3740&directory=Untitled%202.png&name=Untitled+2.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3740&directory=Untitled%202.png&name=Untitled+2.png)
+
+위 이미지에 나온 package-lock.json 파일의 dependencies 필드를 보면, **'실제로 설치된' 패키지들의 이름과 '정확한' 버전들**을 볼 수 있습니다.
+
+반면에 packag.json 파일의 내용을 보면
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3740&directory=Untitled.png&name=Untitled.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3740&directory=Untitled.png&name=Untitled.png)
+
+dependencies 필드에 보이는 패키지의 이름 옆에는 Version Range Syntax가 존재하는 경우도 있다는 것을 알 수 있습니다. 즉, 이 dependencies 필드가 의미하는 것은 특정 패키지의 특정 버전이 아니라(특정 버전이 적혀있는 경우도 물론 있습니다) Version Range Syntax를 만족하는 버전의 패키지라면 언제든지 업데이트된 버전의 패키지가 설치되어도 괜찮다는 뜻입니다.
+
+그러니까
+
+- package.json 파일의 dependencies 필드에는 '현재 패키지가 동작하기 위해 필요한 다른 패키지들의 버전 범위'가 적혀있는 것이고,
+- package-lock.json 파일의 dependencies 필드에는 '현재 패키지에 실제로 설치되어 있는 다른 패키지들의 버전'이 적혀있는 것입니다.
+
+무슨 차이인지 이해되시죠?
+
+그리고 바로 이 **package-lock.json 파일**이 아까 말한 **'package.json 기반의 패키지 공유 방식'이 발생시킬 수 있는 문제에 대한 해결책**입니다.
+
+패키지를 공유할 때, 이 package-lock.json 파일도 package.json 파일과 함께 공유하면
+
+```sh
+npm install 
+```
+
+을 실행했을 때 npm은 **package-lock.json 파일의 dependencies**를 보고, 특정 버전의 패키지들을 **정확히 동일하게** 설치합니다. 그럼 어느 상황에서든 해당 패키지를 공유받는 사람이나 공유해준 사람은 동일한 버전의 dependency들을 설치하게 됩니다. 즉, 동일한 node_modules 디렉토리를 갖게 되는 것입니다.
+
+그러니까 만약 패키지를 공유할 때 정확히 똑같은 패키지를 상대방도 가져야 할 때는 반드시 이 package-lock.json 파일도 package.json과 함께 공유해줘야 합니다. 그 정도까지는 아니고 공유받는 측에서 패키지가 동작만 잘 해도 되는 경우라면 package.json 파일만 공유해줘도 되고요.  
+ 자, 이때까지 배운 내용을 정리해볼게요.
+
+- 패키지를 공유할 때는 보통 그 안의 node_modules 디렉토리를 제외하고 공유합니다.
+- 이때 패키지 안의 package.json 파일 내용 중 dependencies 필드의 정보가
+- 공유받는 측에서 node_modules 디렉토리를 재생성(npm install)하는 데 사용되며
+- 이때 공유해준 사람과 공유받은 사람 간에 node_modules 디렉토리 내부의 차이가 발생하지 않도록 방지하려면
+- package-lock.json 파일도 package.json 파일과 함께 공유해줘야 합니다.
+
+이번 노트의 내용은 실무적으로 중요한 내용이니까 제대로 이해하고 넘어가세요!
+
+
+
+
+
+
+
+이때까지 하나의 패키지는 보통 스스로 혼자 동작하는 것이 아니라, 많은 dependencies에 의존해서 동작한다는 사실을 배웠습니다.  그리고 Semantic Version과 Version Range Syntax를 기반으로 이러한 시스템이 유지된다는 것도 배웠는데요.  Node.js 개발을 하다 보면 현재 작업 중이 디렉토리(패키지) 내에서, 외부의 패키지 몇 개만 **npm install [패키지명]** 형식으로 설치해도 곧장 그에 딸린 수십, 수백 개의 패키지들이 설치되는 것을 발견하게 될 겁니다.
+
+그런데 이렇게 하나의 패키지가 다른 패키지들에 의존하고, 그것들이 또 다른 패키지들에 의존하는 모습은 약간의 위험성을 갖고 있기도 합니다. 어떤 문제들이 있는지 한번 살펴봅시다.
+
+# 1. 악성코드 문제
+
+첫 번째로 악성 코드 문제가 있습니다. 그러니까 내 패키지가 의존하는 수많은 하위 패키지 중에 악성코드가 있을 수도 있다는 뜻이죠. 실제로 2017년에는 cross-env라는 유명 패키지와 이름이 비슷한 crossenv라는 패키지에 악성 코드가 들어 있는 경우가 발견된 적도 있습니다.[[1\]](https://www.codeit.kr/learn/3741#fn1) 사용자들이 패키지를 설치할 때 오타를 별로 신경 쓰지 않고 패키지를 설치해버리는 취약점을 공격한 일명 'typo-squatting' 기법을 사용한 경우였는데요.
+
+이 뿐만 아니라 2018년에는 Event-Stream이라는 유명 패키지가 의존하던 Flatmap-Stream이라는 패키지에 비트코인 관련 악성 코드가 포함된 사건도 있었고,[[2\]](https://www.codeit.kr/learn/3741#fn2) 2020년에는 유닉스 시스템의 중요 정보를 빼가는 악성 패키지가 발견되는 사건도 있었습니다.[[3\]](https://www.codeit.kr/learn/3741#fn3)
+
+내가 사용하는 패키지 중에 이런 악성 코드들이 있다고 상상해보면 정말 무섭죠? 물론 패키지들의 보안 검사를 위해 npm 커뮤니티에서 많은 노력을 하고는 있지만, 특정 패키지, 그리고 그것이 의존하는 패키지들이 사용해도 괜찮은 것인지 확인하는 것은 본질적으로 그것을 사용해서 서비스를 만드는 개발자의 책임입니다. 모든 패키지를 본인이 직접 검사하는 것은 현실적으로 어렵겠지만 악성 코드가 있는 패키지를 설치하지 않으려면, 되도록 누구나 알 정도로 공신력있는 패키지들만을 골라서 사용하는 것이 좋습니다.
+
+# 2. 패키지 내 코드의 취약점 문제
+
+두 번째는 취약점 문제입니다. 어떤 패키지들의 코드에는 보안 측면에서 취약한 부분이 있을 수 있습니다. npm 측과 각종 보안 회사들은 어떤 패키지의 어떤 점이 취약하다고 주기적으로 발표를 하는데요. 이 문제에 관해 우리가 할 수 있는 것은 다음과 같습니다.
+
+## (1) npm outdated, npm update 정기적으로 실행하기
+
+먼저, 현재 작업 중인 패키지 안에서 **npm outdated**, **npm update** 라는 명령어를 자주 실행해주는 겁니다. **npm outdated**는 현재 패키지에 설치된 하위 패키지들 중에 버전이 최신이 아닌 것들이 무엇이 있는지 보여주는 명령어입니다. 그리고 **npm update**는 현재 자신의 패키지에 설치된 모든 패키지들을 최신 패키지로 업데이트해주는 명령어이고요.
+
+본인의 패키지 안에서 npm outdated로 오래된 패키지들이 많지는 않은지 확인해주고, npm update로 이것들을 최신 패키지로 업데이트해주는 작업을 정기적으로 수행해주면 좋습니다. 참고로 npm update는 package.json 파일의 dependencies 필드에 표시된 해당 패키지의 Version Range Syntax가 허용하는 범위 내에서만 업데이트를 해줍니다. 현재 설치된 버전이 1.5.2고, 최신 버전은 3.0.0인 패키지가 있다고 해도 이 패키지에 의존 중인 패키지의 package.json 파일에서 dependencies 필드에 ~1.8.3 이라고 써있다면 1.9.0 미만의 최신 버전까지로만 업데이트해주는 겁니다.
+
+어쨌든 최신 버전의 패키지들을 사용할수록 일반적으로 보안상 더 안전하기 때문에 위 작업을 주기적으로 실행해주는 게 좋습니다. 이때 일부 패키지의 경우, 최신 버전으로 업데이트하기 전에 별도의 검토가 필요해서 모든 패키지를 최신의 것으로 바꾸면 안 되는 경우에는
+
+```sh
+npm update [패키지명] 
+```
+
+을 실행해서 원하는 패키지만 업데이트해줘도 됩니다. 만약 최신보다 약간 이전의 버전을 원하면
+
+```sh
+npm update [패키지명]@[버전] 
+```
+
+이런 식으로 특정 버전을 지정해주고 실행하면 됩니다.
+
+## (2) npm audit, npm audit fix으로 취약점 점검하기
+
+패키지 내의 보안을 유지하는 또 다른 방법은 **npm audit**이라는 커맨드를 사용하는 건데요. 현재 자신의 패키지 안에서 npm audit이라는 커맨드를 실행하면, npm이 현재 설치된 패키지들의 이름과 버전을 보고, 발표된 취약점이 있는 것들은 그 정보를 출력해줍니다. 저도 제 패키지에서 npm audit을 실행해봤더니
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3741&directory=Untitled.png&name=Untitled.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3741&directory=Untitled.png&name=Untitled.png)
+
+이렇게 취약점 하나가 발견되었습니다. 이때 **npm install fix**라는 명령어를 실행하면 npm이 Version Range Syntax를 준수하면서도, 취약점이 해결된 더 최신 버전의 패키지를 자동으로 설치해줍니다. 하지만 이 npm install fix 만으로는 문제를 해결하지 못하는 경우도 있는데요. 이럴 때는 More info에 있는 URL로 들어가서 필요한 해결 조치를 보고 직접 수행해주면 됩니다.
+
+방금 말한 방법들을 사용하면 보안상 취약한 패키지들을 사용하게 될 가능성은 작아지겠죠?
+
+# 3. 패키지의 가용성(Availability) 문제
+
+세 번째로 문제점은 사용 중이던 패키지가 갑자기 사라져버리거나 관리되지 않고 방치될 수도 있다는 점입니다. 실제로 2016년에는 left-pad라고 하는 패키지의 주인이 npm 저장소에서 그 패키지를 삭제해버린 사건이 있었습니다.[[4\]](https://www.codeit.kr/learn/3741#fn4) 이 때문에 당시 left-pad에 의존하고 있던, React나 Babel 같은 대형 프로젝트들에도 큰 문제가 발생했었는데요. 다행히 이 문제는 잘 해결되었지만, 이 사건은 당시 수많은 패키지들의 의존 생태계가 단 한 순간에 무너져버릴 수도 있다는 공포감을 개발자들에게 심어주었습니다. 그리고 단순한 기능 정도는 패키지를 굳이 쓰지 말자는 의식의 전환을 가져다주기도 했죠. 왜냐하면 당시 left-pad의 코드는 아래와 같이 단순한 코드였기 때문입니다.
+
+```jsx
+module.exports = leftpad;
+
+function leftpad (str, len, ch) {
+  str = String(str);
+  var i = -1;
+  if (!ch && ch !== 0) ch = ' ';
+  len = len - str.length;
+  while (++i < len) {
+    str = ch + str;
+ }
+  return str;
+}
+```
+
+이런 작은 코드 조각이 수많은 회사들을 당황하게 만든 겁니다. 놀라운 사실이죠?
+
+현재, npm 저장소에 한 번 올린 패키지는, 올리고 나서 72시간이 지나면 함부로 삭제할 수 없도록 되어 있습니다. 그래서 이제 그런 문제는 발생할 수 없겠지만 내가 사용하는 패키지가 앞으로도 잘 관리될 패키지인지를 확인하는 것은 여전히 중요합니다. 이 부분은 패키지의 인기도, 패키지를 관리하는 주체 등을 보고 스스로 잘 판단해야겠죠?  
+ 자, 이때까지 다른 패키지들에 의존함으로써 발생할 수 있는 문제들을 살펴봤습니다. 어떤 플랫폼도 마찬가지지만, 특히 Node.js의 패키지 생태계는 다양하고 유용한 패키지들이 아주 많이 존재한다는 점이 매력적입니다. 하지만 이렇게 다양한 패키지들을 자유롭게 사용하는 편리함을 누리는 만큼, 그 대가로 우리는 사용하는 패키지에 대해
+
+- 이상한 코드는 없는지,
+- 외부의 공격에 취약한 부분은 없는지,
+- 앞으로도 꾸준한 업데이트가 이루어질지를
+
+잘 고민하고 사용해야 합니다. 특정 분야에서 사실상 표준(de facto standard)처럼 존재하는 패키지가 있는 경우라면 상관없지만, 그렇지 않은 경우에 어떤 패키지를 사용하려고 한다면, 방금 위에서 설명한 기준들을 충족하는지 잘 판단하고 사용 여부를 결정하세요.
+
+------
+
+1. [https://blog.npmjs.org/post/163723642530/crossenv-malware-on-the-npm-registry](https://blog.npmjs.org/post/163723642530/crossenv-malware-on-the-npm-registry/) [↩](https://www.codeit.kr/learn/3741#fnref1)
+2. [https://www.zdnet.com/article/hacker-backdoors-popular-javascript-library-to-steal-bitcoin-funds](https://www.zdnet.com/article/hacker-backdoors-popular-javascript-library-to-steal-bitcoin-funds/) [↩](https://www.codeit.kr/learn/3741#fnref2)
+3. [https://www.zdnet.com/article/microsoft-spots-malicious-npm-package-stealing-data-from-unix-systems](https://www.zdnet.com/article/microsoft-spots-malicious-npm-package-stealing-data-from-unix-systems/) [↩](https://www.codeit.kr/learn/3741#fnref3)
+4. [https://qz.com/646467/how-one-programmer-broke-the-internet-by-deleting-a-tiny-piece-of-code](https://qz.com/646467/how-one-programmer-broke-the-internet-by-deleting-a-tiny-piece-of-code/) [↩](https://www.codeit.kr/learn/3741#fnref4)
+
+
+
+
+
+
+
+# nodemon 패키지를 전역 설치해보기. 
+
+```js
+npm instal -g nodemon
+```
+
+`-g` global모드로 설치하겠다. 전역설치. 
+
+
+
+# 전역 설치 원리
+
+이전 영상에서는 **nodemon**이라는 패키지를 **전역 설치**해봤습니다. 그리고 패키지를 마치 하나의 **실행 파일인 것처럼** 사용해봤는데요.  그동안 패키지는 그냥 코드에서 require 함수로 로드해서 사용하는 것만 생각해봤지, 이렇게 사용해본 적은 처음입니다.  어떻게 저는 패키지를 실행 파일처럼 사용할 수 있었던 걸까요?
+
+일단 패키지를 설치하는 방법에는 크게 두 가지가 있습니다.
+
+첫 번째는 우리가 이때까지 일반적으로 했던 것처럼 `-g` 옵션을 주지 않고 그냥 설치하는 방법입니다. 이것을 **local mode 설치**라고 합니다. 이 경우에는 이전에 배운 것처럼 패키지가 `node_modules` 디렉토리에 설치됩니다.
+
+두 번째는 이전 영상에서 했던 것처럼 `-g` 옵션을 주고 설치하는 방법입니다. 이것을 **global mode 설치(전역 설치)**라고 합니다. 그런데 이 경우에는 패키지가 node_modules 디렉토리가 아닌 다른 곳에 설치됩니다. 바로
+
+> **{prefix}/lib/node_modules**
+
+경로에 설치되는데요. 여기서 **prefix는 npm에 관한 여러 기본 설정값 중 하나입니다.**
+
+npm은 그것이 동작할 때 참조하는 여러 가지 설정값들이 있는데요. 그 설정값들은
+
+```sh
+npm config list --json
+```
+
+이라는 명령어로 아래 이미지처럼 확인해볼 수 있습니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled.png&name=Untitled.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled.png&name=Untitled.png)
+
+npm에 관한 다양한 설정값들이 출력되었는데요. 각각의 설정값이 무엇을 의미하는지 궁금하신 분들은 [이 링크](https://docs.npmjs.com/using-npm/config)를 참조하시면 됩니다. 이 상태에서 좀 더 스크롤을 내려보면
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%201.png&name=Untitled+1.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%201.png&name=Untitled+1.png)
+
+prefix라는 설정의 값이 **"/usr/local"**이라는 걸 알 수 있습니다.  그러니까 **{prefix}/lib/node_modules** 경로는 결국 **/usr/local/lib/node_modules** 인 것이고 전역 설치된 패키지가 바로 여기 설치된다는 뜻입니다. prefix의 값은 OS에 따라 다르니까 여러분의 컴퓨터에서도 직접 확인해보는 게 좋습니다.
+
+이렇게 전역 설치를 한 패키지 또한 이전에 우리가 한 것처럼 코드에서 require 함수로 로드할 수는 있습니다. 예를 들어, 이전 영상에서 전역 설치한 nodemon 패키지도
+
+```sh
+const nodemon = require('/usr/local/lib/node_modules/nodemon');
+```
+
+이런 식으로 코드에서 로드해서 사용할 수 있죠.
+
+하지만 이렇게 되면
+
+- require 함수 안의 경로명이 불필요하게 길어지고,
+- 나중에 패키지를 외부로 공유할 때 상대방의 컴퓨터에서는 경로가 달라질 수 있기 때문에(prefix의 값은 OS마다 다르기 때문에)
+
+이렇게 코드에서 로드할 목적의 패키지를 굳이 전역 설치하지는 않습니다.
+
+대신 이전 영상에서 말한 것처럼 **패키지를 마치 하나의 실행 파일처럼 사용하고자 할 때 이렇게 전역 설치를 하는데요.**
+
+그럼 패키지를 전역 설치하면 왜 그것을 마치 하나의 실행 파일인 것처럼 실행할 수 있는 걸까요? 그 원리를 터미널에서
+
+```sh
+npm install -g nodemon
+```
+
+을 실행했을 때 발생하는 일들을 통해 설명하겠습니다.
+
+```sh
+npm install -g nodemon
+```
+
+을 실행하면
+
+1> npm은 nodemon 패키지를 위에서 말한 **/usr/local/lib/node_modules** 디렉토리에 설치합니다.
+
+2> 그리고 nodemon 패키지 안에 있는 **package.json** 파일의 내용 중에서 **bin**이라는 필드를 찾습니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%202.png&name=Untitled+2.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%202.png&name=Untitled+2.png)
+
+지금 보면 왼쪽에 'nodemon', 오른쪽에 'bin/nodemon.js'라고 쓰여 있죠?
+
+오른쪽은 nodemon 패키지 안의 bin 디렉토리에 있는 nodemon.js라는 파일을 나타냅니다. 실제로 이런 파일이 있는지 확인해보면
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%203.png&name=Untitled+3.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%203.png&name=Untitled+3.png)
+
+정말로 존재하는 파일이라는 걸 알 수 있는데요. nodemon.js 파일의 내용을 잠깐 살펴보면,
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%204.png&name=Untitled+4.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%204.png&name=Untitled+4.png)
+
+이렇게 몇 줄의 자바스크립트 코드가 적혀있는 파일이라는 것을 알 수 있습니다. 여기서 가장 맨 위의
+
+```jsx
+#!/usr/bin/env node
+```
+
+이 표시는 **이 파일은 node로 실행해야 한다는 뜻**입니다. 즉, nodemon.js는 'node nodemon.js' 이런 식으로 실행되어야 한다는 뜻이죠.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%202.png&name=Untitled+2.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%202.png&name=Untitled+2.png)
+
+자, 이 이미지를 잘 기억합시다.
+
+3> 그다음 npm은 {prefix}/bin 이라는 디렉토리에 nodemon이라는 파일을 생성합니다. prefix의 값은 '/usr/local'였죠? 그러니까 **/usr/local/bin** 디렉토리에 **nodemon이라는 파일을 만드는 겁니다.** 확인해보면,
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%205.png&name=Untitled+5.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%205.png&name=Untitled+5.png)
+
+정말로 nodemon이라는 파일이 존재합니다. 지금 nodemon 파일이, 이전 단계에서 본 nodemon.js 파일의 경로를 화살표로 가리키고 있죠? 이 표시는
+
+'/usr/local/bin/nodemon' 파일이 '/usr/local/lib/node_modules/nodemon/bin/nodemon.js'에 대한 바로가기 파일이라는 뜻입니다. 바로가기 파일이 뭔지는 아시죠? 원본 파일 그 자체는 아니지만 원본 파일을 가리키고 있어서 클릭하면 원본 파일을 실행할 수 있는 파일이잖아요? 바로 그 뜻입니다.(리눅스에서 이 표시는 심볼릭 링크(Symbolic Link)라는 별도의 명칭과 기능을 갖고 있지만 일단은 이 정도로 이해하고 넘어갑시다) 정리하면 '/usr/local/bin/nodemon' 파일을 실행했을 때 '/usr/local/lib/node_modules/nodemon/bin/nodemon.js' 파일이 실행된다는 뜻입니다.
+
+정말 그런지 확인해볼까요? 잠깐 저의 홈 디렉토리로 돌아와서 실행해볼게요.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%206.png&name=Untitled+6.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%206.png&name=Untitled+6.png)
+
+**/usr/local/bin/nodemon**을 실행해보면, 정말 실행이 잘 됩니다. 제가 /usr/local/bin/nodemon을 실행하면 이것이 가리키는 원본 파일인 nodemon.js이 실행되는 것이고 nodemon.js 파일은 아까 본 내용처럼
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%204.png&name=Untitled+4.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%204.png&name=Untitled+4.png)
+
+이렇게 node로 실행되어야 한다는 표시가 맨 윗줄에 쓰여 있기 때문에 시스템이 자동으로 node nodemon.js 를 실행해주는 겁니다.
+
+실제로 확인해보면
+
+- 바로가기 파일을 실행한 것과
+- 원본 파일을 node로 실행한 것의 결과가 아래 이미지처럼 서로 같습니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=new.png&name=new.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=new.png&name=new.png)
+
+5> 자, 이제 마지막 단계입니다.
+
+저는 이전 영상에서 nodemon을 사용할 때 방금 전 단계처럼 /usr/local/bin/nodemon이라고 복잡하게 타이핑하지 않았습니다. 단지
+
+```sh
+nodemon main.js
+```
+
+이라고 간단하게 썼죠. 그런데 어떻게 문제없이 실행되었던 걸까요? 이 부분은 Node.js가 아니라 운영체제와 관련된 부분인데요.
+
+운영체제에는 **환경 변수(Environment Variables)**라는 것이 있습니다. 환경 변수란 시스템을 위해 필요한 각종 기본값들을 저장하고 있는 변수들인데요. 이 중에는 `$PATH`라는 환경 변수가 있습니다. 이 **`$PATH` 환경변수는 실행 파일들이 존재하는 디렉토리의 경로들이 저장되어있는 변수**인데요. `$PATH` 환경변수를 한번 확인해보겠습니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%207.png&name=Untitled+7.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3766&directory=Untitled%207.png&name=Untitled+7.png)
+
+$PATH 환경 변수의 값으로 다양한 디렉토리들의 경로가 콜론(:)을 기준으로 나열되어 있습니다. 빨간 박스 안에 /usr/local/bin 디렉토리가 보이시죠? **nodemon 파일이 있던 디렉토리입니다.**
+
+**운영체제는 우리가 어떤 경로를 주지 않고 파일 이름만 적고 엔터를 치면, 이 `$PATH`에 있는 모든 디렉토리를 확인하면서 그런 이름의 파일을 찾아서 실행합니다.** 그래서 이전 챕터에서 그냥 nodemon main.js라고만 쓰고 실행해도 `$PATH` 환경 변수 덕분에 /usr/local/bin/nodemon이 잘 실행됐던 겁니다. 이제 이해가 되시죠?
+
+이때까지의 내용을 정리해보면,
+
+(1) nodemon 실행 ->  (2) $PATH 변수 참조해서 /usr/local/bin/nodemon 파일 실행 ->  (3) 원본 파일인 /user/local/lib/node_modules/nodemon.js을 실행 ->  (4) 가장 맨 윗 줄의 #!/usr/bin/env node를 확인하고 시스템이 자동으로 node /user/local/lib/node_modules/nodemon.js 실행
+
+이런 순서를 통해 nodemon 패키지를 마치 하나의 실행 파일인 것처럼 사용할 수 있었던 겁니다.  
+ 자, 이때까지 패키지를 전역 설치했을 때 왜 그것을 하나의 실행 파일인 것처럼 실행할 수 있었는지 그 이유를 설명했습니다. 꽤 다양한 내용들을 살펴봤는데요. 이전에 말했던 것처럼 패키지를 마치 하나의 실행 파일인 것처럼 사용하려고 할 때만 전역 설치를 합니다. 그렇지 않은 경우에는 굳이 이렇게 전역 설치를 할 필요가 없습니다.
+
+그리고 한 가지 재밌는 사실은 Node.js를 설치할 때 함께 설치했던 npm 또한 {prefix}/lib/node_modules 디렉토리에 전역 설치되는 패키지였다는 사실입니다. 해당 경로에 가면 npm이라고 쓰여 있는 디렉토리를 찾을 수 있을 겁니다. 그리고 우리가 npm을 하나의 실행 프로그램인 것처럼 사용할 수 있는 이유도 방금 전 설명한 내용과 동일합니다. 이 말이 정말 맞는지 이번 노트의 내용을 바탕으로 여러분이 직접 확인해보세요!
+
+
+
+
+
+# npm 명령어
+
+- `npm search express` express가 있거나 등등 키워드 검색. 
+- `npm info express` 특정 패키지에 대한 정보 조회. 
+- `npm list` : 현재 내 패키지가 의존하고 있는 리스트를 줘라. 
+- `npm uninstall <패키지명>` : 패키지 삭제
+
+
+
+
+
+# NPM의 중요성과 yarn
+
+# 1. 웹 프론트엔드 개발 세계에서도 중요한 npm
+
+이때까지 npm에 대해서 배워보았는데요. 그런데 한 가지 흥미로운 사실이 있습니다. 그건 바로 우리가 배운 npm은 오늘날 웹 **프론트엔드** 개발 영역에서도 중요한 역할을 하는 프로그램이라는 사실입니다.
+
+이게 무슨 말일까요? 분명 저희는 Node.js로 서버 개발, 그러니까 **백엔드** 개발을 할 수 있는 거라고 배웠고, 이때 npm으로 필요한 패키지(package)를 설치 및 관리한다고 했습니다. 그런데 갑자기 npm이 웹 프론트엔드 개발 영역에서도 중요하다니 이게 무슨 말일까요?
+
+그 이유를 설명하기 전에 오늘날 웹 프론트엔드 개발 세계의 분위기에 대해 간단하게 설명해드릴게요. 오늘날의 웹 프론트엔드 개발은 단순히 HTML, CSS, Javascript를 잘 작성하고, 조합하는 정도에 그치지 않습니다. 왜냐하면
+
+- Javascript의 표준이 발전하고 있고,
+- 웹 프론트엔드에서 요구되는 UI/UX 상의 기능 난이도가 높아지고 있으며,
+- 성능 문제, 개발 생산성 향상 문제, 브라우저 호환 문제 등이 더욱 중요한 이슈가 되면서
+
+훨씬 고도화된 작업들이 추가되었기 때문입니다.
+
+예를 들어, 오늘날 웹 프론트엔드 개발을 할 때는
+
+(1) 코드가 잘 작동하는지를 검사하는 테스트 작업(**testing**)
+
+(2) 자바스크립트 코드가 가독성 좋은 포맷으로 잘 작성되었는지를 검사하고 수정하는 작업(**code formatting**)
+
+(3) 작성한 자바스크립트 코드가 자바스크립트 최신 표준을 지원하지 않는, 오래된 브라우저(특히, 인터넷 익스플로러 등)에서도 문제없이 동작할 수 있도록 변환하거나 자바스크립트의 단점을 보완한 언어(Typescript 등)로 작성한 코드를 다시 자바스크립트로 변환하는 트랜스파일 작업(**transpiling**)
+
+(4) 여러 자바스크립트 파일들과 CSS 파일 등을 하나의 파일로 묶는 번들링 작업(**bundling**),
+
+(5) 번들링된 결과를 더 작은 용량으로 압축해주는 작업(**minifying**),
+
+(6) 이런 작업들을 한 번에 자동으로 실행할 수 있도록 설정하는 작업(**Task Runner**)
+
+등이 필요합니다. 그리고 개발자들은 보통 이런 작업들을 이미 공신력있는 유명 툴들을 사용해서 수행하는데요. 이때 각각의 작업을 수행할 수 있는 대표적인 도구들의 이름은 다음과 같습니다.
+
+(1) testing 작업 - Mocha  (2) code formatting 작업 - ESLint (3) transpiling 작업 - Babel (4) bundling 작업 - Webpack (5) minifying 작업 - Uglify-JS (6) Task Runner - Gulp
+
+각 작업에서 사용할 수 있는 툴들은 다양하지만 일단 대표적인 것들만 이름을 나열해보았습니다. 이런 툴들은 각자가 독립적으로 사용되기도 하고, 하나의 툴이 플러그인처럼 개발되어 다른 툴에 삽입되어서 쓰이기도 합니다.
+
+여기서 중요한 사실은 웹 프론트엔드 개발자들도 이런 툴들을 모두 npm 저장소에서 패키지로 다운로드받아 사용한다는 점입니다. 실제로 그런지 npm 공식 웹사이트에서 각 툴의 이름을 검색해보면,
+
+**(1) Mocha**
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled.png&name=Untitled.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled.png&name=Untitled.png)
+
+**(2) ESLint**
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%201.png&name=Untitled+1.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%201.png&name=Untitled+1.png)
+
+**(3) Babel**
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%202.png&name=Untitled+2.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%202.png&name=Untitled+2.png)
+
+**(4) Webpack**
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%203.png&name=Untitled+3.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%203.png&name=Untitled+3.png)
+
+**(5) Uglify-JS**
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%204.png&name=Untitled+4.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%204.png&name=Untitled+4.png)
+
+**(6) Gulp**
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%205.png&name=Untitled+5.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%205.png&name=Untitled+5.png)
+
+이렇게 모두 npm 저장소에 존재하는 것을 볼 수 있습니다.
+
+정리하자면 Node.js 개발자뿐만 아니라 수많은 웹 프론트엔드 개발자들도 npm을 사용해서 이런 툴들을 설치하고 사용한다는 뜻입니다. npm의 영향력이 이렇게 크다는 사실이 놀랍죠? 이 말은 여러분이 이번 **'챕터 4. 패키지와 npm 제대로 배우기'** 를 열심히 공부하고, 궁금한 내용들도 일부러 찾아서 공부한다면 나중에 웹 프론트엔드 개발을 해야 할 때도 큰 도움이 된다는 뜻입니다.
+
+npm이 단지 Node.js 개발 뿐만 아니라 웹 프론트엔드 개발에서도 중요하게 사용된다는 사실, 꼭 기억해두세요!
+
+# 2. npm과 Yarn
+
+방금, npm이 웹 프론트엔드 개발에서도 얼마나 중요한 역할을 하는 프로그램인지 알게 됐습니다. 그런데 패키지를 관리하는 프로그램에는 npm 뿐만 아니라 Yarn이라는 것도 있습니다. Yarn은 npm의 경쟁자 같은 프로그램인데요.
+
+npm이 2010년에 출시된 패키지 관리 프로그램이라면, Yarn은 2016년 페이스북에서 출시한 패키지 관리 프로그램입니다. 당시 npm의 느린 속도 등을 해결하기 위해 페이스북에서 Yarn을 만들었는데요. 출시 당시에 Yarn은 npm보다 더 빠른 패키지 설치 속도를 자랑했고, 오프라인 캐시(offline cache - 한번 설치한 패키지를 계속 보관해두는 기능, 패키지를 다시 삭제하고 인터넷이 끊긴 상태에서도 재설치 가능) 기능 등의 추가 기능을 탑재했습니다.
+
+하지만 npm 또한 그 이후로 속도가 향상되고 캐시 기능 등도 비슷하게 도입되면서 많은 발전을 이루었는데요. 오늘날 개발자들은 자신의 취향에 따라 npm 또는 Yarn을 쓰고 있습니다. 그리고 Yarn 자체가 npm으로부터 많은 핵심 개념을 그대로 본떠서 만든 패키지 매니저 프로그램이기 때문에 npm만 잘 사용할 줄 알면 Yarn도 금방 사용할 수 있는데요.
+
+개발자로서 사용하는 입장에서 알아두면 좋을 Yarn과 npm의 차이는 다음과 같습니다.
+
+## 1. 설치 방법의 차이
+
+npm은 Node.js를 설치할 때 함께 설치되지만, Yarn은 별도로 설치해줘야 하는 패키지입니다. 따라서 아래와 같이 Yarn을 npm에서 설치해줘야 합니다.
+
+```sh
+npm install -g yarn
+```
+
+우리가 배운 전역 설치 방식으로 설치해주면 됩니다.
+
+## 2. 명령어의 차이
+
+npm와 Yarn은 사용하는 명령어에도 차이가 있습니다. npm의 각 명령어별로, 같은 기능을 하는 Yarn의 명령어들을 옆에 나열해보면 아래와 같습니다.
+
+- 패키지 생성 : npm init - yarn init
+- 패키지 업로드 : npm publish - yarn publish
+- 패키지 설치 : npm install [패키지명] - yarn add [패키지명]
+- 패키지 삭제 : npm uninstall [패키지명] - yarn remove [패키지명]
+- 패키지 업그레이드 : npm update [패키지명] -yarn upgrade [패키지명]
+- 패키지 정보 조회 : npm info [패키지명] - yarn info [패키지명]
+- 현재 패키지의 dependencies 조회 : npm list - yarn list
+
+왼쪽의 명령어들은 이때까지 우리가 배운 명령어들이죠? Yarn의 경우에는 같은 단어를 쓰는 경우도 있고 다른 단어를 쓰는 경우도 있네요.
+
+## 3. package-lock.json vs. yarn.lock
+
+이전에 우리는 현재 작업 디렉토리(패키지), 그러니까 내 패키지에 설치된 패키지들의 정확한 버전 정보가 package-lock.json 파일에 있다고 배웠습니다. Yarn을 사용하는 경우에도 이것과 같은 역할을 하는 파일이 있습니다. 바로 yarn.lock 파일입니다. 둘다 뒤에 lock이라는 단어가 붙어있다는 공통점이 있습니다.
+
+두 파일은 동일한 내용을 갖고 있지만, 그 형식이 약간 다른데요. package-lock.json 파일의 경우 아래와 같이 생겼고
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%206.png&name=Untitled+6.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%206.png&name=Untitled+6.png)
+
+yarn.lock 파일은 이렇게 생겼습니다.
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%207.png&name=Untitled+7.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%207.png&name=Untitled+7.png)
+
+비슷하면서도 조금은 다르게 생겼죠?
+
+## 4. 명령어 실행 시 출력 내용의 차이
+
+Yarn으로 패키지 관련 작업을 하면 npm 때와 조금은 다른 형식으로 터미널에서 그 결과들이 출력됩니다. Yarn은 npm에 비해 조금은 더 정돈된 디자인과, 귀여운 이모티콘을 출력한다는 것이 특징입니다.
+
+아래 이미지를 보면
+
+![https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%208.png&name=Untitled+8.png](https://bakey-api.codeit.kr/api/files/resource?root=static&seqId=3745&directory=Untitled%208.png&name=Untitled+8.png)
+
+패키지를 설치할 때(yarn add cowsay) 그 출력 결과가 npm 때와는 좀 다르죠?  
+ 자, 이때까지 npm과 Yarn의 차이에 대해서 알아보았습니다. 이 밖에도 npm과 Yarn 사이에는 세부적으로 동작하는 방식에 차이가 있고, 그 밖의 미세한 기능 차이가 존재하는데요. 하지만 무엇이 절대적으로 더 좋다기보다는 개인의 취향에 따라 적절한 것을 고르면 됩니다.
+
+만약 npm에 대해서 어느 정도 공부를 하고 나면 Yarn도 한번 공부해보세요. 비슷한 원리라서 빠른 시간 안에 익힐 수 있을 겁니다. 그리고 그 뒤에는 여러분이 개인적으로 더 마음에 드는 프로그램을 사용하시면 됩니다.
+
+
+
+
+
