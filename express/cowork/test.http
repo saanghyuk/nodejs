@@ -1,0 +1,50 @@
+
+GET http://localhost:3000/api/members
+
+
+###
+GET http://localhost:3000/api/members/3
+
+###
+
+GET http://localhost:3000/api/members?team=engineering
+
+### 
+
+POST http://localhost:3000/api/members 
+Content-Type:application/json
+
+{
+  "id" : 11, 
+  "name": "Noel", 
+  "team": "Engineering", 
+  "position": "Android Developer", 
+  "emailAddress": "noel@ab180.co", 
+  "phoneNumber": "010-1412-2141",
+  "admissionDate": "2018/12/10",
+  "birthday": "1900/11/08",
+  "profileImage": "profile11.png"
+}
+
+### 
+
+PUT http://localhost:3000/api/members/100
+Content-Type:application/json
+
+{
+  "name": "Heidi", 
+  "team" : "Sales", 
+  "position" : "AE", 
+  "emailAddress" : "heidi@airbridge.io", 
+  "phoneNumber": "010-2613-8234"
+}
+
+###
+
+
+### 
+
+DELETE http://localhost:3000/api/members/3
+
+
+###
